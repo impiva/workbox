@@ -48,7 +48,4 @@
 import CacheableResponse from './lib/cacheable-response';
 import CacheableResponsePlugin from './lib/cacheable-response-plugin';
 
-export {
-  CacheableResponse,
-  CacheableResponsePlugin,
-};
+export {CacheableResponse, CacheableResponsePlugin};

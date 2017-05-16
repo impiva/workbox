@@ -30,8 +30,7 @@ const errors = require('./lib/errors');
 const askForRootOfWebApp = require('./lib/questions/ask-root-of-web-app');
 const askForServiceWorkerName = require('./lib/questions/ask-sw-name');
 const askSaveConfigFile = require('./lib/questions/ask-save-config');
-const askForExtensionsToCache =
-  require('./lib/questions/ask-extensions-to-cache');
+const askForExtensionsToCache = require('./lib/questions/ask-extensions-to-cache');
 
 /**
  * This class is a wrapper to make test easier. This is used by
@@ -55,14 +54,14 @@ class SWCli {
       return this.handleCommand(
         meowOutput.input[0],
         meowOutput.input.splice(1),
-        meowOutput.flags
+        meowOutput.flags,
       )
-      .then(() => {
-        process.exit(0);
-      })
-      .catch(() => {
-        process.exit(1);
-      });
+        .then(() => {
+          process.exit(0);
+        })
+        .catch(() => {
+          process.exit(1);
+        });
     } else {
       meowOutput.showHelp(1);
     }
@@ -73,8 +72,7 @@ class SWCli {
    * @return {string} The log output
    */
   getHelpText() {
-    return fs.readFileSync(
-      path.join(__dirname, 'cli-help.txt'), 'utf8');
+    return fs.readFileSync(path.join(__dirname, 'cli-help.txt'), 'utf8');
   }
 
   /**
@@ -105,43 +103,39 @@ class SWCli {
     let config = {};
 
     return getConfigFile()
-    .then((savedConfig) => {
-      if (savedConfig) {
-        config = savedConfig;
-      }
-      config = Object.assign(config, flags);
-    })
-    .then(() => {
-      const requiredFields = [
-        'globDirectory',
-        'staticFileGlobs',
-        'swDest',
-      ];
-
-      let askQuestions = false;
-      requiredFields.forEach((requiredField) => {
-        if (!config[requiredField]) {
-          askQuestions = true;
+      .then(savedConfig => {
+        if (savedConfig) {
+          config = savedConfig;
         }
+        config = Object.assign(config, flags);
+      })
+      .then(() => {
+        const requiredFields = ['globDirectory', 'staticFileGlobs', 'swDest'];
+
+        let askQuestions = false;
+        requiredFields.forEach(requiredField => {
+          if (!config[requiredField]) {
+            askQuestions = true;
+          }
+        });
+
+        if (askQuestions) {
+          // If some configuration is defined but not all required fields
+          // throw an error forcing the developer to either go through
+          // the guided flow OR go through the config only flow.
+          if (Object.keys(config).length > 0) {
+            cliLogHelper.error(errors['config-supplied-missing-fields']);
+            return Promise.reject();
+          }
+
+          return this._askGenerateQuestions(config);
+        }
+
+        return Promise.resolve(config);
+      })
+      .then(config => {
+        return swBuild.generateSW(config);
       });
-
-      if (askQuestions) {
-        // If some configuration is defined but not all required fields
-        // throw an error forcing the developer to either go through
-        // the guided flow OR go through the config only flow.
-        if (Object.keys(config).length > 0) {
-          cliLogHelper.error(errors['config-supplied-missing-fields']);
-          return Promise.reject();
-        }
-
-        return this._askGenerateQuestions(config);
-      }
-
-      return Promise.resolve(config);
-    })
-    .then((config) => {
-      return swBuild.generateSW(config);
-    });
   }
 
   /**
@@ -151,48 +145,46 @@ class SWCli {
    */
   _askGenerateQuestions(config) {
     return Promise.resolve()
-    .then(() => {
-      if (!config.globDirectory) {
-        return askForRootOfWebApp()
-        .then((rDirectory) => {
-          // This will give a pretty relative path:
-          // '' => './'
-          // 'build' => './build/'
-          config.globDirectory =
-            path.join('.', path.relative(process.cwd(), rDirectory), path.sep);
-        });
-      }
-    })
-    .then(() => {
-      if (!config.staticFileGlobs) {
-        return askForExtensionsToCache(config.globDirectory)
-        .then((extensionsToCache) => {
-          config.staticFileGlobs = [
-            generateGlobPattern(extensionsToCache),
-          ];
-        });
-      }
-    })
-    .then(() => {
-      if (!config.swDest) {
-        return askForServiceWorkerName()
-        .then((swName) => {
-          config.swDest = path.join(config.globDirectory, swName);
-          config.globIgnores = [
-            swName,
-          ];
-        });
-      }
-    })
-    .then(() => {
-      return askSaveConfigFile();
-    })
-    .then((saveConfig) => {
-      if (saveConfig) {
-        return saveConfigFile(config);
-      }
-    })
-    .then(() => config);
+      .then(() => {
+        if (!config.globDirectory) {
+          return askForRootOfWebApp().then(rDirectory => {
+            // This will give a pretty relative path:
+            // '' => './'
+            // 'build' => './build/'
+            config.globDirectory = path.join(
+              '.',
+              path.relative(process.cwd(), rDirectory),
+              path.sep,
+            );
+          });
+        }
+      })
+      .then(() => {
+        if (!config.staticFileGlobs) {
+          return askForExtensionsToCache(
+            config.globDirectory,
+          ).then(extensionsToCache => {
+            config.staticFileGlobs = [generateGlobPattern(extensionsToCache)];
+          });
+        }
+      })
+      .then(() => {
+        if (!config.swDest) {
+          return askForServiceWorkerName().then(swName => {
+            config.swDest = path.join(config.globDirectory, swName);
+            config.globIgnores = [swName];
+          });
+        }
+      })
+      .then(() => {
+        return askSaveConfigFile();
+      })
+      .then(saveConfig => {
+        if (saveConfig) {
+          return saveConfigFile(config);
+        }
+      })
+      .then(() => config);
   }
 }
 

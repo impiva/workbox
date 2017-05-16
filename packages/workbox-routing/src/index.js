@@ -60,10 +60,4 @@ import RegExpRoute from './lib/regexp-route';
 import Route from './lib/route';
 import Router from './lib/router';
 
-export {
-  ExpressRoute,
-  NavigationRoute,
-  RegExpRoute,
-  Route,
-  Router,
-};
+export {ExpressRoute, NavigationRoute, RegExpRoute, Route, Router};

@@ -24,7 +24,4 @@
 import Queue from './lib/background-sync-queue';
 import QueuePlugin from './lib/background-sync-queue-plugin';
 
-export {
-	Queue,
-	QueuePlugin,
-};
+export {Queue, QueuePlugin};

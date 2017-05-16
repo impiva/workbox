@@ -66,10 +66,10 @@
  * @module workbox-precaching
  */
 import ErrorFactory from './lib/error-factory';
-import RevisionedCacheManager from
-  './lib/controllers/revisioned-cache-manager.js';
-import UnrevisionedCacheManager from
-  './lib/controllers/unrevisioned-cache-manager.js';
+import RevisionedCacheManager
+  from './lib/controllers/revisioned-cache-manager.js';
+import UnrevisionedCacheManager
+  from './lib/controllers/unrevisioned-cache-manager.js';
 
 import environment from '../../../lib/environment.js';
 
@@ -78,7 +78,4 @@ if (!environment.isServiceWorkerGlobalScope()) {
   throw ErrorFactory.createError('not-in-sw');
 }
 
-export {
-  RevisionedCacheManager,
-  UnrevisionedCacheManager,
-};
+export {RevisionedCacheManager, UnrevisionedCacheManager};

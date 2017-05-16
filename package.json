@@ -69,12 +69,8 @@
     "uppercamelcase": "^3.0.0"
   },
   "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "git add"
-    ],
-    "**/*.jsx": [
-      "prettier --write",
+    "**/src/*.js": [
+      "prettier --single-quote --write --trailing-comma 'all' --no-bracket-spacing",
       "git add"
     ]
   },

@@ -85,13 +85,13 @@ import replayQueuedRequests from './lib/replay-queued-requests.js';
  *                    replayed, throw an error.
  * @memberof module:workbox-google-analytics
  */
-const initialize = (config) => {
+const initialize = config => {
   config = config || {};
 
   // Stores whether or not the previous /collect request failed.
   let previousHitFailed = false;
 
-  self.addEventListener('fetch', (event) => {
+  self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
     const request = event.request;
 
@@ -105,30 +105,37 @@ const initialize = (config) => {
         const clonedRequest = request.clone();
 
         event.respondWith(
-          fetch(request).then((response) => {
-            if (previousHitFailed) {
-              replayQueuedRequests(config);
-            }
-            previousHitFailed = false;
-            return response;
-          }, (error) => {
-            logHelper.log('Enqueuing failed request...');
-            previousHitFailed = true;
-            return enqueueRequest(clonedRequest).then(() => Response.error());
-          })
+          fetch(request).then(
+            response => {
+              if (previousHitFailed) {
+                replayQueuedRequests(config);
+              }
+              previousHitFailed = false;
+              return response;
+            },
+            error => {
+              logHelper.log('Enqueuing failed request...');
+              previousHitFailed = true;
+              return enqueueRequest(clonedRequest).then(() => Response.error());
+            },
+          ),
         );
       } else if (url.pathname === constants.URL.ANALYTICS_JS_PATH) {
         // If this is a request for the Google Analytics JavaScript library,
         // use the network first, falling back to the previously cached copy.
         event.respondWith(
-          caches.open(constants.CACHE_NAME).then((cache) => {
-            return fetch(request).then((response) => {
-              return cache.put(request, response.clone()).then(() => response);
-            }).catch((error) => {
-              logHelper.error(error);
-              return cache.match(request);
-            });
-          })
+          caches.open(constants.CACHE_NAME).then(cache => {
+            return fetch(request)
+              .then(response => {
+                return cache
+                  .put(request, response.clone())
+                  .then(() => response);
+              })
+              .catch(error => {
+                logHelper.error(error);
+                return cache.match(request);
+              });
+          }),
         );
       }
     }
