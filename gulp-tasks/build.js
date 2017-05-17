@@ -104,6 +104,11 @@ gulp.task('lerna-bootstrap-scoped', () => {
 /**
  * Helper task, used only within lerna-publish.
  */
+ gulp.task('_lerna-publish-dry-run:force', () => {
+   return lernaWrapper('publish', '--skip-npm', '--skip-git',
+     '--force-publish=*');
+ });
+
 gulp.task('_lerna-publish-dry-run', () => {
   return lernaWrapper('publish', '--skip-npm', '--skip-git');
 });
