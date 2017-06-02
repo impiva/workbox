@@ -152,7 +152,6 @@ function generateBuildConfigs({formatToPath, baseDir, moduleName,
 
   const prodReplacePlugin = replace({
     '`BUILD_PROCESS_REPLACE::BUILD_TARGET`': '`prod`',
-    'error-stack-parser': './error-stack-parser-no-op',
   });
 
   const babelPlugin = babel({
@@ -165,7 +164,7 @@ function generateBuildConfigs({formatToPath, baseDir, moduleName,
     buildConfigs.push({
       rollupConfig: {
         entry: entry || path.join(baseDir, 'src', 'index.js'),
-        plugins: [devReplacePlugin, ...basePlugins],
+        plugins: [devReplacePlugin, ...basePlugins, babelPlugin],
       },
       writeConfig: {
         banner: LICENSE_HEADER,
