@@ -86,7 +86,7 @@ class CacheExpiration {
    * @return {DB} An open DB instance.
    */
   async getDB({cacheName} = {}) {
-    assert.isType({cacheName}, 'string');
+    isType({cacheName}, 'string');
 
     const idbId = `${idbName}-${cacheName}`;
     if (!this._dbs.has(idbId)) {
@@ -111,7 +111,7 @@ class CacheExpiration {
    * @return {Cache} An open Cache instance.
    */
   async getCache({cacheName} = {}) {
-    assert.isType({cacheName}, 'string');
+    isType({cacheName}, 'string');
 
     if (!this._caches.has(cacheName)) {
       const openCache = await caches.open(cacheName);
