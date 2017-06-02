@@ -157,6 +157,8 @@ function generateBuildConfigs({formatToPath, baseDir, moduleName,
   const babelPlugin = babel({
     presets: [['babili', {
       comments: false,
+      mangle: true,
+      topLevel: true,
     }]],
   });
 
